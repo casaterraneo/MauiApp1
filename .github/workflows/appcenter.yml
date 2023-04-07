@@ -2,7 +2,7 @@ name: Build Hybrid App & Deploy App Center
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
 
 env:
   DotNetVersion: 7.0
