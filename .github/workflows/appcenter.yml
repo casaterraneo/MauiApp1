@@ -1,0 +1,55 @@
+name: Build Hybrid App & Deploy App Center
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  DotNetVersion: 7.0
+  Configuration: Release
+  Framework: net7.0-android
+  AppId: kenzotange.mauiapp1
+  AppName: kenzotange/MauiApp1
+
+jobs:
+  build:
+    runs-on: macos-12
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ env.DotNetVersion }}
+
+    - run: |
+        dotnet workload install maui
+
+    - run: |
+        dotnet restore
+
+    - run: |
+        dotnet publish \
+            -f ${{ env.Framework }} \
+            -c ${{ env.Configuration }} \
+            /p:ApplicationVersion=${{ github.run_number }}
+
+    - uses: actions/upload-artifact@v3
+      with:
+        path: |
+          MauiApp1/bin/${{ env.Configuration }}/${{ env.Framework }}/publish/${{ env.AppId }}-Signed.apk
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - uses: actions/download-artifact@v3
+
+    - uses: wzieba/AppCenter-Github-Action@v1
+      with:
+        appName: ${{ env.AppName }}
+        token: ${{ secrets.APP_CENTER }}
+        group: Collaborators
+        file: artifact/${{ env.AppId }}-Signed.apk
+        debug: true

@@ -1,0 +1,76 @@
+﻿@page "/trivia"
+
+@using MauiApp1.Data
+@inject IHttpClientFactory HttpClientFactory
+
+<h1>Trivia</h1>
+
+<p>This component demonstrates fetching data from a service.</p>
+
+@if (triviaQuestions == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Question</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var triviaQuestion in triviaQuestions)
+            {
+                <tr>
+                    <td>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>@triviaQuestion.Question</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var answer in @triviaQuestion.Answers.OrderBy(a => a.Answer))
+                                {
+                                    <tr>
+                                        <td>@answer.Answer</td>
+                                        <td>
+                                            <InputCheckbox @bind-Value=answer.MyAnswer />
+                                        </td>
+                                        <td>
+                                            <InputCheckbox @bind-Value=answer.IsCorrectAnswer disabled="true" hidden="@hiddenCorrectAnswer" />
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button @onclick=CheckAnswers class="btn btn-primary">Check answers</button>
+}
+
+@code {
+    private TriviaQuestionDto[] triviaQuestions;
+    private TriviaApi triviaApi;
+    private bool hiddenCorrectAnswer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hiddenCorrectAnswer = true;
+        var client = HttpClientFactory.CreateClient();
+        var triviaApi = new TriviaApi(client);
+
+        triviaQuestions = await triviaApi.GetQuestionsAsync(5);
+    }
+
+    protected void CheckAnswers()
+    {
+        hiddenCorrectAnswer = false;
+    }
+}
