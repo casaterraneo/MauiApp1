@@ -4,7 +4,7 @@
              xmlns:local="clr-namespace:MauiApp1"
              x:Class="MauiApp1.App">
     <Application.Resources>
-        <ResourceDictionary>
+        <ResourceDictionary> 
 
             <Color x:Key="PageBackgroundColor">#512bdf</Color>
             <Color x:Key="PrimaryTextColor">White</Color>
